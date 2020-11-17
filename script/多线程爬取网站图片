@@ -1,0 +1,87 @@
+"""
+爬取http://blog.cuishuai.cc/meizi/网站的图片，多线程下载
+"""
+
+
+import requests
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor,wait,ALL_COMPLETED, FIRST_COMPLETED
+import os
+import PIL.Image as Image
+from PIL import ImageFile
+from os import listdir
+import math
+import matplotlib.pyplot as plt
+import random
+from wordcloud import WordCloud
+
+
+
+def open_url(url):
+    headers = {'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Mobile Safari/537.36'}
+    ret = requests.get(url, headers=headers)
+    return ret
+
+
+#下载保存一张图片
+def save_imag(arg):
+    url = arg[0] #单个图片url
+    path = arg[1]
+    filename = url.split('/')[-1]  # 最后一个/后的就是文件名
+    filepath = os.path.join(path,filename)
+    with open(filepath, 'wb') as f:
+        # 打开每张图片,获得二进制数据，写入文件
+        res = open_url(url)
+        imag = res.content
+        f.write(imag)  # 将图片写入文件
+        print(filename + '下载完成')
+
+
+#多进程下载图片
+def download_imag(imag_url,folder='图片',flag=False):
+    if os.path.exists(folder):
+        pass
+    else:
+        os.mkdir(folder)
+    pool = ThreadPoolExecutor(50)
+    all_task=[ ]
+    if isinstance(imag_url,list):#判断imag_url是否为列表,通过多进程下载
+        for each in imag_url:
+            #save_imag(each,folder)
+            tmp =[each,folder]
+            pool.submit(save_imag, tmp)
+            #all_task.append(pool.submit(save_imag, tmp))
+        pool.shutdown(wait=True)
+        #wait(all_task, return_when=ALL_COMPLETED)
+    else:
+        save_imag(imag_url,folder)
+
+
+
+
+#获取请求页面中所有图片url
+def get_img_url(url):
+    img_list = []  # 存储所有图片url
+    res = open_url(url)
+    soup = BeautifulSoup(res.text, features="lxml")
+    html = soup.find_all("img", alt="妹子图")
+    for i in html:
+        img_url = i['src']  # 获取图片url
+        img_list.append(img_url)
+    return img_list
+
+
+
+if __name__ == '__main__':
+
+    img_all=[]
+    flag=True
+    pages = 15
+    url = 'http://blog.cuishuai.cc/meizi/page_%s.html'
+
+    for i in range(pages):
+        newurl = url % i
+        img_list = get_img_url(newurl)
+        img_all+=img_list
+
+    download_imag(img_all)

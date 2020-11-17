@@ -1,0 +1,41 @@
+"""
+不带参数
+
+def timer(func):
+    def wrapper():
+        pass #自定义逻辑
+        res=func()
+        pass #自定义逻辑
+        return res
+    return wrapper
+
+带参数
+
+def timer(func):
+    def wrapper(*args,**kwargs):
+        pass
+        res=func(*args,**kwargs)
+        pass
+        return res
+    return wrapper
+
+"""
+
+def auth(func):
+    def wrapper(*args,**kwargs):
+        username = input('用户名: ').strip()
+        passwd = input('密码: ').strip()
+        if username == 'root' and passwd=='123':
+            res=func(*args,**kwargs)
+            return res
+        else:
+            print('用户名或者密码错误,重新登录')
+    return wrapper
+
+
+@auth
+def index(name):
+    print('欢迎来到主页:%s' % name)
+
+
+index('root')

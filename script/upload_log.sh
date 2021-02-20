@@ -47,7 +47,7 @@ filename=*$(date -d "last-hour" +%Y%m%d_%H)*.log
 folderdate=$(date -d "last-hour" +%Y%m%d)
 echo $filename
 
-ip="172.17.91.191"
+ip="127.0.0.1"
 R_DIR="/data/provincelog/ReportFTPRoot/gsd/$folderdate/"
 L_DIR="/data/log/gsd/"
 L_DIR_m="/data/log/gsd_route_monitor/"

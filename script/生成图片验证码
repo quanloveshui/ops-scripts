@@ -1,0 +1,55 @@
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+import random
+
+#定义随机颜色
+def get_random_color():
+    R = random.randrange(255)
+    G = random.randrange(255)
+    B = random.randrange(255)
+
+    return (R, G, B)
+
+#生成图片
+img = Image.new("RGB", (270, 40), color=get_random_color())
+# 创建Draw对象  获取图片画笔，用于描绘字
+draw = ImageDraw.Draw(img)
+# 创建Font对象 修改字体
+vera_font = ImageFont.truetype("Vera.ttf", size=35)
+
+valid_code_str = ''
+for i in range(5):
+    # 数字
+    random_num = str(random.randint(0, 9))
+    # 随机小写字母
+    random_low_alpha = chr(random.randint(95, 122))
+    # 随机大写字母
+    random_upper_alpha = chr(random.randint(65, 90))
+
+    random_char = random.choice([random_num, random_upper_alpha, random_low_alpha])
+
+    #  x, y  坐标 根据坐标填充文字
+    draw.text((i * 50 + 20, 5), random_char, get_random_color(), font=vera_font)
+    # 保存验证码字符串
+    valid_code_str += random_char
+
+#加上噪点噪线
+#width和height是前端画布的宽和高，第一个for循环是噪点的加入，第二个for循环是噪线的加入。
+width = 235
+height = 35
+for i in range(10):
+    x1 = random.randint(0, width)
+    x2 = random.randint(0, width)
+    y1 = random.randint(0, height)
+    y2 = random.randint(0, height)
+    draw.line((x1, x2, y1, y2), fill=get_random_color())
+
+for i in range(40):
+    draw.point([random.randint(0, width), random.randint(0, height)],
+               fill=get_random_color())
+    x = random.randint(0, width)
+    y = random.randint(0, height)
+    draw.arc((x, y, x + 4, y + 4), 0, 90, fill=get_random_color())
+
+with open("1.png", "wb") as f:
+    img.save(f, 'png')
